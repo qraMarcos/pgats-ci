@@ -20,7 +20,7 @@ e2e-tests:
   # passos executados antes dos testes
   before_script:
     # instalação do Yarn
-    - npm install -g yarn
+    #- npm install -g yarn
 
     # instalação das dependências
     - yarn
