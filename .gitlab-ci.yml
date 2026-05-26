@@ -1,22 +1,17 @@
-# CI de Nível 01 - Disparo Manual através de clique
+# CI de Nível 02 - Relatórios com Playwright
 
-# imagem Docker utilizada na pipeline
+# imagem Docker utilizada
 image: node:24
 
-# nome dos estágios da pipeline
+# estágios da pipeline
 stages:
   - test
 
-# tarefas dentro da pipeline = jobs
-
-# nome do job
+# job de testes E2E
 e2e-tests:
 
-  # estágio onde o job será executado
+  # estágio do job
   stage: test
-
-  # gatilho manual
-  when: manual
 
   # passos do job
   script:
@@ -24,11 +19,25 @@ e2e-tests:
     # instalação das dependências
     - yarn
 
-    # instalação das dependências do Playwright no Linux
+    # instalação das dependências Linux do Playwright
     - npx playwright install-deps
 
-    # instalação dos browsers do Playwright
+    # instalação dos browsers
     - npx playwright install
 
-    # executar os testes e2e
+    # execução dos testes
     - yarn run e2e
+
+  # salvar relatórios da execução
+  artifacts:
+
+    # salvar mesmo em caso de falha
+    when: always
+
+    # arquivos/pastas salvos
+    paths:
+      - playwright-report/
+      - results.xml
+
+    # tempo de retenção
+    expire_in: 30 days
