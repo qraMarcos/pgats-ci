@@ -2,7 +2,7 @@
 
 # nome da pipeline
 stages:
-  - Execução manual
+  - test
 
 # tarefas dentro da pipeline = jobs
 
