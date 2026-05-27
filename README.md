@@ -1,371 +1,95 @@
-# PGATS-CI
+# PGATS CI — Integração Contínua com GitLab CI e Playwright
 
-Projeto desenvolvido para prática de Integração Contínua utilizando GitLab CI/CD, Playwright e Allure Reports.
+Projeto desenvolvido para prática de Integração Contínua (CI) utilizando GitLab CI, Playwright e geração automatizada de relatórios com Allure Report.
 
----
-
-# Exercício 1 — Pipeline de Integração Contínua no GitLab CI
-
-## Objetivo
-
-Implementar uma pipeline de Integração Contínua utilizando uma ferramenta diferente do GitHub Actions.
-
-Ferramenta escolhida:
-
-* entity["company","GitLab","GitLab DevOps Platform"] CI/CD
+O objetivo do projeto é automatizar a execução de testes E2E, gerar relatórios detalhados e disponibilizar os resultados automaticamente pela web utilizando GitLab Pages.
 
 ---
 
-## Tecnologias utilizadas
+# Tecnologias utilizadas
 
-* Node.js
-* Yarn
-* Playwright
-* GitLab CI/CD
-* Allure Report
-
----
-
-## Estrutura do projeto
-
-```bash
-.
-├── e2e/
-│   └── example.spec.js
-├── playwright.config.js
-├── package.json
-├── .gitlab-ci.yml
-└── README.md
-```
+- Node.js
+- Playwright
+- GitLab CI
+- Allure Report
+- GitLab Pages
 
 ---
 
-## Configuração da pipeline
+# Exercícios Implementados
 
-Arquivo:
+## Pipeline de Integração Contínua
 
-```bash
+Foi criada uma pipeline utilizando GitLab CI para automatizar a execução dos testes E2E do projeto.
+
+A pipeline foi configurada para:
+
+- Instalar dependências automaticamente
+- Instalar os browsers do Playwright
+- Executar os testes E2E
+- Gerar artifacts da execução
+- Gerar relatórios JUnit
+- Executar automaticamente a cada push no repositório
+
+Arquivo utilizado:
+
+```yml
 .gitlab-ci.yml
 ```
 
-Pipeline criada:
+---
 
-```yml
-image: node:24
+## Melhoria da Pipeline com Allure Report
 
-stages:
-  - test
+Após a implementação inicial da pipeline, foi integrado o Allure Report para melhorar a visualização dos resultados dos testes dentro do mesmo fluxo de Integração Contínua.
 
-cache:
-  paths:
-    - node_modules/
-    - ~/.cache/ms-playwright/
+Com isso, a pipeline passou a:
 
-playwright_tests:
-  stage: test
+- Gerar relatórios visuais automatizados
+- Exibir detalhes completos das execuções
+- Manter histórico dos testes
+- Publicar automaticamente os relatórios na web
+- Permitir acesso aos resultados sem necessidade de download manual
 
-  before_script:
-    - yarn
-    - npx playwright install --with-deps
+---
 
-  script:
-    - yarn e2e
+## Fluxo final da pipeline
 
-  artifacts:
-    when: always
-    paths:
-      - playwright-report/
-      - test-results/
-      - allure-results/
-      - allure-report/
-      - results.xml
-    expire_in: 1 week
+1. Instalação das dependências
+2. Instalação dos browsers do Playwright
+3. Execução dos testes automatizados
+4. Geração do Allure Report
+5. Criação dos artifacts
+6. Publicação automática no GitLab Pages
+
+---
+
+# Relatório online
+
+O relatório Allure pode ser acessado diretamente pelo navegador:
+
+```txt
+https://qramarcos.gitlab.io/pgats-ci
 ```
 
 ---
 
-## Explicação da pipeline
+# Estrutura do projeto
 
-### image: node:24
-
-Define a imagem Docker utilizada pelo runner.
-
-Neste caso:
-
-* Node.js versão 24
-
----
-
-### stages
-
-Define as etapas da pipeline.
-
-```yml
-stages:
-  - test
-```
-
-A pipeline possui apenas a etapa de testes.
-
----
-
-### cache
-
-Utilizado para acelerar execuções futuras.
-
-```yml
-cache:
-  paths:
-    - node_modules/
-    - ~/.cache/ms-playwright/
-```
-
-Itens armazenados:
-
-* dependências Node
-* navegadores instalados pelo Playwright
-
----
-
-### playwright_tests
-
-Nome do job executado.
-
----
-
-### before_script
-
-Executado antes dos testes.
-
-```yml
-before_script:
-  - yarn
-  - npx playwright install --with-deps
-```
-
-Comandos:
-
-#### yarn
-
-Instala dependências do projeto.
-
-#### npx playwright install --with-deps
-
-Instala:
-
-* browsers
-* dependências Linux necessárias para execução do Playwright
-
----
-
-### script
-
-Executa os testes automatizados.
-
-```yml
-script:
-  - yarn e2e
-```
-
-O comando chama:
-
-```json
-"scripts": {
-  "e2e": "npx playwright test"
-}
+```txt
+.
+├── e2e/
+├── playwright-report/
+├── allure-results/
+├── allure-report/
+├── package.json
+├── playwright.config.ts
+└── .gitlab-ci.yml
 ```
 
 ---
 
-### artifacts
-
-Salva arquivos gerados após a execução.
-
-```yml
-artifacts:
-  when: always
-```
-
-Os relatórios são preservados mesmo em caso de falha.
-
-Arquivos salvos:
-
-* playwright-report/
-* test-results/
-* allure-results/
-* allure-report/
-* results.xml
-
----
-
-## Configuração do Playwright
-
-Arquivo:
-
-```bash
-playwright.config.js
-```
-
-Configuração utilizada:
-
-```javascript
-export default defineConfig({
-  testDir: './e2e',
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: [
-    ['html', { open: false }],
-    ['junit', { outputFile: 'results.xml' }],
-    ['allure-playwright']
-  ],
-  use: {
-    baseURL: 'https://pgats-ci-example.netlify.app'
-  }
-})
-```
-
----
-
-## Resultado
-
-A pipeline executa automaticamente:
-
-1. Instala dependências
-2. Instala browsers do Playwright
-3. Executa testes E2E
-4. Gera relatórios
-5. Salva artifacts no GitLab
-
----
-
-# Exercício 2 — Implementação de Plugin/Action do Marketplace
-
-## Objetivo
-
-Explorar plugins e ferramentas que agreguem valor ao fluxo da pipeline.
-
-Ferramenta escolhida:
-
-* entity["software","Allure Report","Allure Framework"]
-
----
-
-## Motivo da escolha
-
-O Allure foi escolhido por fornecer:
-
-* relatórios visuais modernos
-* histórico de execução
-* detalhes completos de falhas
-* rastreamento de steps
-* screenshots e anexos
-* melhor visualização dos testes
-
-Além disso:
-
-* é gratuito
-* amplamente utilizado no mercado
-* possui integração simples com Playwright
-
----
-
-## Instalação
-
-### Dependência do reporter
-
-```bash
-yarn add -D allure-playwright
-```
-
----
-
-### Instalação do Allure CLI
-
-```bash
-npm install -g allure-commandline --save-dev
-```
-
----
-
-### Necessidade do Java
-
-O Allure depende do Java para geração do relatório.
-
-Foi necessário instalar:
-
-* Java JDK
-
-Após instalação:
-
-```bash
-java -version
-```
-
----
-
-## Configuração no Playwright
-
-Arquivo:
-
-```bash
-playwright.config.js
-```
-
-Reporter adicionado:
-
-```javascript
-reporter: [
-  ['html', { open: false }],
-  ['junit', { outputFile: 'results.xml' }],
-  ['allure-playwright']
-]
-```
-
----
-
-## Geração do relatório
-
-### Executar testes
-
-```bash
-yarn e2e
-```
-
----
-
-### Gerar relatório Allure
-
-```bash
-npx allure generate allure-results --clean -o allure-report
-```
-
----
-
-### Abrir relatório
-
-```bash
-npx allure open allure-report
-```
-
----
-
-## Resultado obtido
-
-O Allure gerou relatórios visuais contendo:
-
-* status dos testes
-* tempo de execução
-* histórico
-* retries
-* falhas detalhadas
-* traces
-* organização mais profissional dos resultados
-
----
-
-# Execução local
+# Como executar o projeto localmente
 
 ## Instalar dependências
 
@@ -378,7 +102,7 @@ yarn
 ## Instalar browsers do Playwright
 
 ```bash
-npx playwright install --with-deps
+yarn playwright install --with-deps
 ```
 
 ---
@@ -391,68 +115,43 @@ yarn e2e
 
 ---
 
-## Abrir relatório HTML do Playwright
+# Gerar relatório Allure localmente
+
+## Instalar Allure Commandline
 
 ```bash
-npx playwright show-report
+npm install -g allure-commandline
 ```
 
 ---
 
-## Gerar relatório Allure
+## Gerar relatório
 
 ```bash
-npx allure generate allure-results --clean -o allure-report
+allure generate allure-results --clean -o allure-report
 ```
 
 ---
 
-## Abrir relatório Allure
+## Abrir relatório
 
 ```bash
-npx allure open allure-report
+allure open allure-report
 ```
 
 ---
 
-# Versionamento
+# Funcionamento da Integração Contínua
 
-## Enviar alterações para GitLab
+A cada push realizado no GitLab:
 
-```bash
-git add .
-git commit -m "feat: adiciona pipeline CI e relatório Allure"
-git push gitlab master
-```
-
----
-
-## Enviar alterações para GitHub
-
-```bash
-git push origin master
-```
-
----
-
-# Conceitos aprendidos
-
-Durante os exercícios foram praticados:
-
-* pipelines CI/CD
-* GitLab CI
-* runners
-* artifacts
-* cache
-* Playwright
-* testes E2E
-* relatórios automatizados
-* integração com Allure
-* execução automatizada em ambiente Linux
-* troubleshooting de dependências
+1. A pipeline é iniciada automaticamente
+2. Os testes Playwright são executados
+3. O relatório Allure é gerado
+4. O GitLab Pages publica automaticamente o resultado
 
 ---
 
 # Autor
 
-Projeto desenvolvido para fins acadêmicos e prática de Integração Contínua.
+Projeto desenvolvido para prática de Integração Contínua e automação de testes E2E utilizando GitLab CI e Playwright.
