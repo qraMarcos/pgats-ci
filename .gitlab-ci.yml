@@ -3,12 +3,21 @@ image: node:24
 stages:
   - test
 
-test:
+cache:
+  paths:
+    - node_modules/
+    - ~/.cache/ms-playwright/
+
+playwright_tests:
   stage: test
 
-  script:
+  before_script:
+    - apt-get update
+    - apt-get install -y default-jre
     - yarn
-    - yarn playwright install --with-deps
+    - npx playwright install --with-deps
+
+  script:
     - yarn e2e
     - npm install -g allure-commandline
     - allure generate allure-results --clean -o allure-report
@@ -18,7 +27,12 @@ test:
 
     paths:
       - playwright-report/
+      - test-results/
+      - allure-results/
       - allure-report/
+      - results.xml
 
     reports:
       junit: results.xml
+
+    expire_in: 3 week
