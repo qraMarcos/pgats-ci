@@ -1,43 +1,24 @@
-# CI de Nível 02 - Relatórios com Playwright
-
-# imagem Docker utilizada
 image: node:24
 
-# estágios da pipeline
 stages:
   - test
 
-# job de testes E2E
-e2e-tests:
-
-  # estágio do job
+test:
   stage: test
 
-  # passos do job
   script:
-
-    # instalação das dependências
     - yarn
+    - yarn playwright install --with-deps
+    - yarn e2e
+    - npm install -g allure-commandline
+    - allure generate allure-results --clean -o allure-report
 
-    # instalação das dependências Linux do Playwright
-    - npx playwright install-deps
-
-    # instalação dos browsers
-    - npx playwright install
-
-    # execução dos testes
-    - yarn run e2e
-
-  # salvar relatórios da execução
   artifacts:
-
-    # salvar mesmo em caso de falha
     when: always
 
-    # arquivos/pastas salvos
     paths:
       - playwright-report/
-      - results.xml
+      - allure-report/
 
-    # tempo de retenção
-    expire_in: 30 days
+    reports:
+      junit: results.xml
